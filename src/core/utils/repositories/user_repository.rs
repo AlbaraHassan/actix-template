@@ -1,6 +1,6 @@
 use dotenv::dotenv;
 use mongodb::{
-    bson::{self, bson, doc, extjson::de::Error, oid::ObjectId, Document},
+    bson::{doc, extjson::de::Error, oid::ObjectId},
     results::InsertOneResult,
     Client, Collection,
 };
@@ -9,16 +9,14 @@ use std::env;
 
 use crate::app::user::model::User;
 
-pub trait MongoRepoTraits:
-    Serialize  + DeserializeOwned + Unpin + Send + Sync
-{
-}
-impl<T: Serialize + DeserializeOwned  + Unpin + Send + Sync> MongoRepoTraits for T {}
+pub trait MongoRepoTraits: Serialize + DeserializeOwned + Unpin + Send + Sync {}
+impl<T: Serialize + DeserializeOwned + Unpin + Send + Sync > MongoRepoTraits for T {}
 
-pub struct MongoRepo<T>
-where
-    T: MongoRepoTraits,
-{
+pub trait MongoRepoType{
+    async fn get_item(&self, id: String) -> Result<Option<User>, Error>;
+}
+
+pub struct MongoRepo<T> {
     col: Collection<T>, //No need for it to be in Arc Since Data<T> uses Arc
 }
 
@@ -48,5 +46,4 @@ where
         let item = self.col.find_one(filter, None).await;
         Ok(item.unwrap())
     }
-
 }

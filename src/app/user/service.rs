@@ -1,5 +1,4 @@
-use actix_web::{web::Data, HttpResponse, Responder};
-use log::info;
+use actix_web::{ HttpResponse, Responder};
 
 use crate::core::utils::repository::MongoRepo;
 
@@ -33,9 +32,7 @@ impl UserService{
         }
     }
 
-    // pub async fn get_all(self: &Self) -> impl Responder{
-    //     match self.db.get_all().await{
-    //         Ok(user)=> HttpResponse::Ok().json(bson::from_bson())
-    //     }
-    // }
+    pub async fn get_all(self: &Self) -> impl Responder{
+       HttpResponse::Ok().json(self.db.get_all().await.unwrap())
+    }
 }

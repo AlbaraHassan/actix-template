@@ -6,8 +6,8 @@ use mongodb::{
 };
 use serde::{de::DeserializeOwned, Serialize};
 use std::env;
+use futures::stream::TryStreamExt;
 
-use crate::app::user::model::User;
 
 pub trait MongoRepoTraits:
     Serialize  + DeserializeOwned + Unpin + Send + Sync
@@ -49,4 +49,14 @@ where
         Ok(item.unwrap())
     }
 
+    pub async fn get_all(&self) -> Result<Vec<T>, Error> {
+        let mut cursor = self.col.find(None, None).await.unwrap();
+        let mut data: Vec<T> = Vec::new();
+    
+        while let Some(doc) = cursor.try_next().await.unwrap() {
+            data.push(doc);
+        }
+
+        Ok(data)
+    }
 }

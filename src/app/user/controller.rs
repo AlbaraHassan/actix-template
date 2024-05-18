@@ -1,17 +1,17 @@
-use crate::{
-    app::user::{model::User, service::UserService, types::GetOneUser},
-    core::utils::repository::MongoRepo,
-};
+use crate::app::user::{model::User, service::UserService, types::GetOneUser};
 use actix_web::{
     get, post,
     web::{self, Data, Json, Query},
-    HttpResponse, Responder,
+    Responder,
 };
-use log::info;
 
 #[get("/")]
-pub async fn get(service: Data<UserService>, new_user: Query<GetOneUser>) -> impl Responder {
-    service.get(new_user.id.clone()).await
+pub async fn get(service: Data<UserService>, data: Query<GetOneUser>) -> impl Responder {
+    service.get(data.id.clone()).await
+}
+#[get("/all")]
+pub async fn get_all(service: Data<UserService>) -> impl Responder {
+    service.get_all().await
 }
 
 #[post("/")]
@@ -27,5 +27,10 @@ pub async fn create(service: Data<UserService>, new_user: Json<User>) -> impl Re
 }
 
 pub fn config(cfg: &mut web::ServiceConfig) {
-    cfg.service(web::scope("/user").service(create).service(get));
+    cfg.service(
+        web::scope("/user")
+            .service(create)
+            .service(get)
+            .service(get_all),
+    );
 }

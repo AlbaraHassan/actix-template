@@ -1,19 +1,15 @@
 use dotenv::dotenv;
+use futures::stream::TryStreamExt;
 use mongodb::{
-    bson::{self, bson, doc, extjson::de::Error, oid::ObjectId, Document},
+    bson::{doc, extjson::de::Error, oid::ObjectId},
     results::InsertOneResult,
     Client, Collection,
 };
 use serde::{de::DeserializeOwned, Serialize};
 use std::env;
-use futures::stream::TryStreamExt;
 
-
-pub trait MongoRepoTraits:
-    Serialize  + DeserializeOwned + Unpin + Send + Sync
-{
-}
-impl<T: Serialize + DeserializeOwned  + Unpin + Send + Sync> MongoRepoTraits for T {}
+pub trait MongoRepoTraits: Serialize + DeserializeOwned + Unpin + Send + Sync {}
+impl<T: Serialize + DeserializeOwned + Unpin + Send + Sync> MongoRepoTraits for T {}
 
 pub struct MongoRepo<T>
 where
@@ -52,7 +48,7 @@ where
     pub async fn get_all(&self) -> Result<Vec<T>, Error> {
         let mut cursor = self.col.find(None, None).await.unwrap();
         let mut data: Vec<T> = Vec::new();
-    
+
         while let Some(doc) = cursor.try_next().await.unwrap() {
             data.push(doc);
         }

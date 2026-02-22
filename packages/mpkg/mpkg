@@ -1,0 +1,334 @@
+#!/bin/sh
+# mpkg — Muslinx Package Manager
+# A lightweight, shell-based package manager for Muslinx Linux
+# Supports binary package installation and source builds from recipes
+
+set -eu
+
+VERSION="1.0.0"
+CONF_FILE="/etc/mpkg/mpkg.conf"
+DB_DIR="/var/lib/mpkg"
+CACHE_DIR="/var/cache/mpkg"
+BUILD_DIR="/tmp/mpkg-build"
+REPO_URL="https://repo.muslinx.org/packages"
+
+# Colors
+C_RESET="\033[0m"
+C_TURQ="\033[36m"
+C_GOLD="\033[33m"
+C_ROSE="\033[31m"
+C_DIM="\033[2m"
+
+# ──────────────────────────────────────────────
+# Helpers
+# ──────────────────────────────────────────────
+
+msg() { printf "${C_TURQ}[mpkg]${C_RESET} %s\n" "$*"; }
+warn() { printf "${C_GOLD}[mpkg]${C_RESET} %s\n" "$*"; }
+err() { printf "${C_ROSE}[mpkg]${C_RESET} %s\n" "$*" >&2; }
+die() { err "$@"; exit 1; }
+
+init_dirs() {
+    mkdir -p "$DB_DIR/installed" "$CACHE_DIR" "$BUILD_DIR"
+}
+
+# ──────────────────────────────────────────────
+# Package Database
+# ──────────────────────────────────────────────
+
+is_installed() {
+    [ -f "$DB_DIR/installed/$1" ]
+}
+
+record_install() {
+    local name="$1" version="$2"
+    cat > "$DB_DIR/installed/$name" << EOF
+name=$name
+version=$version
+install_date=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+EOF
+}
+
+record_remove() {
+    rm -f "$DB_DIR/installed/$1"
+}
+
+get_installed_version() {
+    if is_installed "$1"; then
+        grep "^version=" "$DB_DIR/installed/$1" | cut -d= -f2
+    fi
+}
+
+# ──────────────────────────────────────────────
+# Repository Index
+# ──────────────────────────────────────────────
+
+update_index() {
+    msg "Updating package index..."
+    if curl -fsSL "$REPO_URL/INDEX" -o "$CACHE_DIR/INDEX" 2>/dev/null; then
+        msg "Package index updated"
+    else
+        warn "Could not fetch remote index, using local cache"
+        # Fall back to bundled repo-index
+        if [ -f "$DB_DIR/repo-index" ]; then
+            cp "$DB_DIR/repo-index" "$CACHE_DIR/INDEX"
+        fi
+    fi
+}
+
+search_package() {
+    local query="$1"
+    local index="$CACHE_DIR/INDEX"
+
+    if [ ! -f "$index" ]; then
+        update_index
+    fi
+
+    if [ -f "$index" ]; then
+        grep -i "$query" "$index" | while IFS='|' read -r name version desc; do
+            local status=""
+            if is_installed "$name"; then
+                status="${C_TURQ}[installed]${C_RESET}"
+            fi
+            printf "  ${C_TURQ}%-20s${C_RESET} ${C_DIM}%-10s${C_RESET} %s %s\n" \
+                "$name" "$version" "$desc" "$status"
+        done
+    else
+        die "No package index available. Run: mpkg update"
+    fi
+}
+
+# ──────────────────────────────────────────────
+# Install / Remove
+# ──────────────────────────────────────────────
+
+install_package() {
+    local name="$1"
+    init_dirs
+
+    if is_installed "$name"; then
+        local ver=$(get_installed_version "$name")
+        warn "$name ($ver) is already installed"
+        return 0
+    fi
+
+    # Try binary package first
+    msg "Looking for binary package: $name..."
+    local pkg_url="$REPO_URL/$name.tar.zst"
+    local pkg_file="$CACHE_DIR/$name.tar.zst"
+
+    if curl -fsSL "$pkg_url" -o "$pkg_file" 2>/dev/null; then
+        msg "Installing $name from binary package..."
+        tar -I zstd -xf "$pkg_file" -C / 2>/dev/null || \
+            tar xf "$pkg_file" -C /
+        local version=$(tar -I zstd -tf "$pkg_file" 2>/dev/null | head -1 | sed 's|/.*||' || echo "unknown")
+        record_install "$name" "$version"
+        msg "$name installed successfully"
+        return 0
+    fi
+
+    # Try build recipe
+    local recipe_dir=""
+    for dir in /usr/share/mpkg/recipes "$DB_DIR/recipes"; do
+        if [ -f "$dir/$name/recipe.sh" ]; then
+            recipe_dir="$dir/$name"
+            break
+        fi
+    done
+
+    if [ -n "$recipe_dir" ]; then
+        msg "Building $name from source recipe..."
+        build_from_recipe "$name" "$recipe_dir/recipe.sh"
+        return $?
+    fi
+
+    die "Package '$name' not found in repositories or recipes"
+}
+
+remove_package() {
+    local name="$1"
+
+    if ! is_installed "$name"; then
+        die "Package '$name' is not installed"
+    fi
+
+    local manifest="$DB_DIR/installed/${name}.files"
+    if [ -f "$manifest" ]; then
+        msg "Removing $name..."
+        while IFS= read -r file; do
+            rm -f "$file" 2>/dev/null
+        done < "$manifest"
+        # Remove empty directories
+        while IFS= read -r file; do
+            rmdir "$(dirname "$file")" 2>/dev/null || true
+        done < "$manifest"
+        rm -f "$manifest"
+    else
+        warn "No file manifest for $name — removing database entry only"
+    fi
+
+    record_remove "$name"
+    msg "$name removed"
+}
+
+# ──────────────────────────────────────────────
+# Build from Recipe
+# ──────────────────────────────────────────────
+
+build_from_recipe() {
+    local name="$1"
+    local recipe="$2"
+
+    # Source the recipe
+    (
+        cd "$BUILD_DIR"
+        rm -rf "$name-build"
+        mkdir -p "$name-build"
+        cd "$name-build"
+
+        # Default values
+        pkgname=""
+        pkgver=""
+        pkgdesc=""
+        source_url=""
+        depends=""
+
+        # Source recipe
+        . "$recipe"
+
+        if [ -z "$pkgname" ] || [ -z "$pkgver" ]; then
+            die "Recipe missing pkgname or pkgver"
+        fi
+
+        msg "Building $pkgname $pkgver..."
+
+        # Download source
+        if [ -n "$source_url" ]; then
+            local src_file="$CACHE_DIR/$(basename "$source_url")"
+            if [ ! -f "$src_file" ]; then
+                msg "Downloading source..."
+                curl -fSL "$source_url" -o "$src_file"
+            fi
+            tar xf "$src_file"
+        fi
+
+        # Run build function
+        if type build >/dev/null 2>&1; then
+            build
+        fi
+
+        # Run package function
+        local pkg_dest="$BUILD_DIR/$name-pkg"
+        mkdir -p "$pkg_dest"
+        if type package >/dev/null 2>&1; then
+            DESTDIR="$pkg_dest" package
+        fi
+
+        # Install to system
+        if [ -d "$pkg_dest/usr" ] || [ -d "$pkg_dest/etc" ]; then
+            cp -a "$pkg_dest"/* / 2>/dev/null || true
+        fi
+
+        record_install "$pkgname" "$pkgver"
+        msg "$pkgname $pkgver installed from source"
+    )
+}
+
+# ──────────────────────────────────────────────
+# List / Info
+# ──────────────────────────────────────────────
+
+list_installed() {
+    msg "Installed packages:"
+    if [ -d "$DB_DIR/installed" ] && [ "$(ls -A "$DB_DIR/installed" 2>/dev/null)" ]; then
+        for pkg in "$DB_DIR/installed"/*; do
+            local name=$(basename "$pkg")
+            local ver=$(get_installed_version "$name")
+            printf "  ${C_TURQ}%-25s${C_RESET} %s\n" "$name" "$ver"
+        done
+    else
+        echo "  (no packages installed)"
+    fi
+}
+
+show_info() {
+    local name="$1"
+    if is_installed "$name"; then
+        echo ""
+        cat "$DB_DIR/installed/$name"
+        echo ""
+    else
+        die "Package '$name' is not installed"
+    fi
+}
+
+# ──────────────────────────────────────────────
+# Usage
+# ──────────────────────────────────────────────
+
+usage() {
+    cat << EOF
+
+  ${C_TURQ}✦ mpkg${C_RESET} — Muslinx Package Manager v${VERSION}
+
+  ${C_GOLD}Usage:${C_RESET}
+    mpkg <command> [options]
+
+  ${C_GOLD}Commands:${C_RESET}
+    install <pkg>     Install a package (binary or from source)
+    remove <pkg>      Remove an installed package
+    update            Update the package index
+    search <query>    Search for packages
+    list              List installed packages
+    info <pkg>        Show package information
+    version           Show mpkg version
+
+  ${C_GOLD}Examples:${C_RESET}
+    mpkg install firefox
+    mpkg search editor
+    mpkg remove vim
+    mpkg update
+
+EOF
+}
+
+# ──────────────────────────────────────────────
+# Main
+# ──────────────────────────────────────────────
+
+case "${1:-}" in
+    install)
+        [ -z "${2:-}" ] && die "Usage: mpkg install <package>"
+        shift
+        for pkg in "$@"; do
+            install_package "$pkg"
+        done
+        ;;
+    remove|uninstall)
+        [ -z "${2:-}" ] && die "Usage: mpkg remove <package>"
+        remove_package "$2"
+        ;;
+    update|sync)
+        update_index
+        ;;
+    search|find)
+        [ -z "${2:-}" ] && die "Usage: mpkg search <query>"
+        search_package "$2"
+        ;;
+    list|ls)
+        list_installed
+        ;;
+    info|show)
+        [ -z "${2:-}" ] && die "Usage: mpkg info <package>"
+        show_info "$2"
+        ;;
+    version|-v|--version)
+        echo "mpkg $VERSION"
+        ;;
+    help|-h|--help|"")
+        usage
+        ;;
+    *)
+        die "Unknown command: $1 (try 'mpkg help')"
+        ;;
+esac

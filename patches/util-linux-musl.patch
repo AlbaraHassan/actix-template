@@ -1,0 +1,31 @@
+--- a/include/nls.h
++++ b/include/nls.h
+@@ -1,3 +1,13 @@
++/* Muslinx: musl libc compatibility patch for util-linux
++ * musl does not provide error.h or some BSD-origin headers
++ */
++
++#if defined(__linux__) && !defined(__GLIBC__)
++/* Provide error() as a macro since musl doesn't have error.h */
++#include <stdio.h>
++#include <stdlib.h>
++#define error(status, errnum, ...) do { \
++    fflush(stdout); \
++    fprintf(stderr, __VA_ARGS__); \
++    if (errnum) fprintf(stderr, ": %s", strerror(errnum)); \
++    fprintf(stderr, "\n"); \
++    if (status) exit(status); \
++} while (0)
++#endif
++
+ #ifndef UTIL_LINUX_NLS_H
+--- a/configure.ac
++++ b/configure.ac
+@@ -300,6 +300,12 @@
++# Muslinx: Disable features that require glibc-specific APIs
++AC_CHECK_FUNC([openat], [have_openat=yes], [have_openat=no])
++AC_CHECK_FUNC([scandirat], [have_scandirat=yes], [have_scandirat=no])
++
++# musl compat: check for missing functions
++AC_CHECK_FUNCS([err errx warn warnx])
++AC_CHECK_FUNCS([explicit_bzero])

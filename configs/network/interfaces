@@ -1,0 +1,17 @@
+# Muslinx Network Interfaces Configuration
+# Used by dhcpcd
+
+# Loopback
+auto lo
+iface lo inet loopback
+
+# Primary ethernet (DHCP)
+auto eth0
+iface eth0 inet dhcp
+
+# For static IP, comment above and uncomment below:
+# auto eth0
+# iface eth0 inet static
+#     address 192.168.1.100
+#     netmask 255.255.255.0
+#     gateway 192.168.1.1

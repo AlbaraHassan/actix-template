@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="turquoise-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2ec4b6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d4a853;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="gold-fade" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#d4a853;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#a07d3a;stop-opacity:0.8" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="#0d1117" stroke="#2a3350" stroke-width="2"/>
+
+  <!-- Outer geometric ring (8-pointed star pattern) -->
+  <g opacity="0.15" stroke="#2ec4b6" stroke-width="1" fill="none">
+    <circle cx="256" cy="256" r="220"/>
+    <circle cx="256" cy="256" r="200"/>
+    <!-- 8 radial lines -->
+    <line x1="256" y1="36" x2="256" y2="476"/>
+    <line x1="36" y1="256" x2="476" y2="256"/>
+    <line x1="100" y1="100" x2="412" y2="412"/>
+    <line x1="412" y1="100" x2="100" y2="412"/>
+  </g>
+
+  <!-- Central 8-pointed star (Rub el Hizb ۞) -->
+  <g transform="translate(256,256)">
+    <!-- First rotated square -->
+    <rect x="-85" y="-85" width="170" height="170"
+          transform="rotate(0)"
+          fill="none" stroke="url(#turquoise-gold)" stroke-width="3"/>
+    <!-- Second rotated square (45 degrees) -->
+    <rect x="-85" y="-85" width="170" height="170"
+          transform="rotate(45)"
+          fill="none" stroke="url(#turquoise-gold)" stroke-width="3"/>
+    <!-- Inner circle -->
+    <circle cx="0" cy="0" r="60" fill="none" stroke="#d4a853" stroke-width="2" opacity="0.6"/>
+    <!-- Center dot -->
+    <circle cx="0" cy="0" r="8" fill="#2ec4b6"/>
+  </g>
+
+  <!-- "M" letterform in the center -->
+  <text x="256" y="275" text-anchor="middle"
+        font-family="serif" font-size="72" font-weight="700"
+        fill="url(#turquoise-gold)" opacity="0.9">M</text>
+
+  <!-- Brand name arc (bottom) -->
+  <text x="256" y="420" text-anchor="middle"
+        font-family="sans-serif" font-size="28" font-weight="300"
+        fill="#c9d1e0" letter-spacing="8" opacity="0.8">MUSLINX</text>
+
+  <!-- Tagline -->
+  <text x="256" y="448" text-anchor="middle"
+        font-family="sans-serif" font-size="11" font-weight="300"
+        fill="#7a849b" letter-spacing="4">MUSL · LINUX · CRAFT</text>
+</svg>

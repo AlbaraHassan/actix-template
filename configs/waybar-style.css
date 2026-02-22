@@ -1,0 +1,133 @@
+/* Muslinx Waybar Theme — Islamic Art Inspired */
+/* Color Palette: Lapis Lazuli + Iznik Turquoise + Gold Calligraphy */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap');
+
+* {
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    min-height: 0;
+    border: none;
+    border-radius: 0;
+}
+
+window#waybar {
+    background: rgba(20, 24, 36, 0.88);
+    border: 1px solid #2a3350;
+    border-radius: 12px;
+    color: #c9d1e0;
+    transition: background 0.3s;
+}
+
+tooltip {
+    background: #1c2233;
+    border: 1px solid #2a3350;
+    border-radius: 8px;
+    color: #c9d1e0;
+}
+
+/* ═══ Modules ═══ */
+
+#custom-logo {
+    color: #d4a853;
+    font-size: 15px;
+    padding: 0 8px;
+}
+
+#workspaces button {
+    padding: 0 8px;
+    color: #7a849b;
+    border-radius: 6px;
+    margin: 4px 2px;
+    transition: all 0.2s ease;
+}
+
+#workspaces button:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #c9d1e0;
+}
+
+#workspaces button.focused {
+    background: rgba(46, 196, 182, 0.15);
+    color: #2ec4b6;
+    border: 1px solid rgba(46, 196, 182, 0.2);
+}
+
+#workspaces button.urgent {
+    background: rgba(232, 99, 122, 0.2);
+    color: #e8637a;
+}
+
+#window {
+    color: #7a849b;
+    padding: 0 12px;
+    font-weight: 300;
+}
+
+#clock {
+    color: #f0ead6;
+    font-family: 'Amiri', 'Outfit', serif;
+    font-size: 14px;
+    padding: 0 16px;
+    letter-spacing: 0.02em;
+}
+
+#cpu {
+    color: #2ec4b6;
+    padding: 0 10px;
+}
+
+#memory {
+    color: #d4a853;
+    padding: 0 10px;
+}
+
+#network {
+    color: #c9d1e0;
+    padding: 0 10px;
+}
+
+#network.disconnected {
+    color: #7a849b;
+}
+
+#pulseaudio {
+    color: #c9d1e0;
+    padding: 0 10px;
+}
+
+#pulseaudio.muted {
+    color: #7a849b;
+}
+
+#battery {
+    color: #2ec4b6;
+    padding: 0 10px;
+}
+
+#battery.warning {
+    color: #d4a853;
+}
+
+#battery.critical {
+    color: #e8637a;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    50% { opacity: 0.6; }
+}
+
+#tray {
+    padding: 0 8px;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+    background-color: rgba(232, 99, 122, 0.15);
+}

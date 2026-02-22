@@ -1,0 +1,296 @@
+/* Muslinx GTK3/GTK4 Theme
+ * Islamic art-inspired dark theme
+ * Based on Adwaita-dark, heavily customized for Muslinx palette
+ */
+
+/* ═══ Color Definitions ═══ */
+@define-color theme_bg_color #1c2233;
+@define-color theme_fg_color #c9d1e0;
+@define-color theme_base_color #141824;
+@define-color theme_text_color #c9d1e0;
+@define-color theme_selected_bg_color #2ec4b6;
+@define-color theme_selected_fg_color #0d1117;
+@define-color accent_color #2ec4b6;
+@define-color accent_bg_color #2ec4b6;
+@define-color accent_fg_color #0d1117;
+@define-color destructive_color #e8637a;
+@define-color destructive_bg_color #e8637a;
+@define-color destructive_fg_color #0d1117;
+@define-color warning_color #d4a853;
+@define-color warning_bg_color #d4a853;
+@define-color warning_fg_color #0d1117;
+@define-color success_color #2ec4b6;
+@define-color success_bg_color #2ec4b6;
+@define-color success_fg_color #0d1117;
+@define-color error_color #e8637a;
+@define-color borders rgba(42, 51, 80, 0.8);
+@define-color unfocused_borders rgba(42, 51, 80, 0.5);
+@define-color view_bg_color #141824;
+@define-color view_fg_color #c9d1e0;
+@define-color headerbar_bg_color #1c2233;
+@define-color headerbar_fg_color #c9d1e0;
+@define-color card_bg_color #1c2233;
+@define-color card_fg_color #c9d1e0;
+@define-color popover_bg_color #232a3e;
+@define-color popover_fg_color #c9d1e0;
+@define-color sidebar_bg_color #141824;
+@define-color sidebar_fg_color #c9d1e0;
+
+/* ═══ Window ═══ */
+window,
+.background {
+    background-color: @theme_bg_color;
+    color: @theme_fg_color;
+}
+
+decoration {
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
+                0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ═══ Header Bar ═══ */
+headerbar {
+    background: @headerbar_bg_color;
+    border-bottom: 1px solid @borders;
+    min-height: 42px;
+    padding: 0 8px;
+}
+
+headerbar .title {
+    font-weight: 500;
+    color: #f0ead6;
+}
+
+headerbar .subtitle {
+    font-size: smaller;
+    color: #7a849b;
+}
+
+/* Window control buttons */
+headerbar button.close {
+    background: rgba(232, 99, 122, 0.3);
+    border: 1.5px solid #e8637a;
+}
+
+headerbar button.maximize {
+    background: rgba(46, 196, 182, 0.3);
+    border: 1.5px solid #2ec4b6;
+}
+
+headerbar button.minimize {
+    background: rgba(212, 168, 83, 0.3);
+    border: 1.5px solid #d4a853;
+}
+
+/* ═══ Buttons ═══ */
+button {
+    border-radius: 6px;
+    padding: 6px 16px;
+    border: 1px solid @borders;
+    background: @theme_bg_color;
+    color: @theme_fg_color;
+    transition: all 0.15s ease;
+}
+
+button:hover {
+    background: #232a3e;
+    border-color: @border_glow;
+}
+
+button:active,
+button:checked {
+    background: rgba(46, 196, 182, 0.15);
+    border-color: rgba(46, 196, 182, 0.3);
+}
+
+button.suggested-action {
+    background: #2ec4b6;
+    color: #0d1117;
+    border-color: #2ec4b6;
+    font-weight: 600;
+}
+
+button.suggested-action:hover {
+    background: #1a8a7f;
+    border-color: #1a8a7f;
+}
+
+button.destructive-action {
+    background: #e8637a;
+    color: #0d1117;
+    border-color: #e8637a;
+    font-weight: 600;
+}
+
+button.destructive-action:hover {
+    background: #c44d63;
+    border-color: #c44d63;
+}
+
+/* ═══ Entries / Inputs ═══ */
+entry {
+    border-radius: 6px;
+    padding: 6px 10px;
+    background: @view_bg_color;
+    border: 1px solid @borders;
+    color: @theme_fg_color;
+    caret-color: #2ec4b6;
+}
+
+entry:focus {
+    border-color: #d4a853;
+    box-shadow: 0 0 0 2px rgba(212, 168, 83, 0.2);
+}
+
+/* ═══ Lists / Rows ═══ */
+list,
+listview {
+    background: @view_bg_color;
+}
+
+row {
+    padding: 8px 12px;
+    transition: background 0.15s;
+}
+
+row:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+row:selected {
+    background: rgba(46, 196, 182, 0.15);
+    color: #2ec4b6;
+}
+
+/* ═══ Scrollbars ═══ */
+scrollbar slider {
+    background: rgba(46, 196, 182, 0.3);
+    border-radius: 4px;
+    min-width: 6px;
+    min-height: 6px;
+}
+
+scrollbar slider:hover {
+    background: rgba(46, 196, 182, 0.5);
+}
+
+scrollbar slider:active {
+    background: rgba(46, 196, 182, 0.7);
+}
+
+/* ═══ Switch ═══ */
+switch {
+    border-radius: 12px;
+    background: #2a3350;
+    border: 1px solid @borders;
+}
+
+switch:checked {
+    background: #2ec4b6;
+}
+
+switch slider {
+    border-radius: 50%;
+    background: #f0ead6;
+    min-width: 20px;
+    min-height: 20px;
+}
+
+/* ═══ Progress Bars ═══ */
+progressbar trough {
+    background: #2a3350;
+    border-radius: 4px;
+    min-height: 6px;
+}
+
+progressbar progress {
+    background: linear-gradient(90deg, #2ec4b6, #d4a853);
+    border-radius: 4px;
+    min-height: 6px;
+}
+
+/* ═══ Tooltips ═══ */
+tooltip {
+    background: #232a3e;
+    border: 1px solid #2a3350;
+    border-radius: 8px;
+    color: #c9d1e0;
+    padding: 6px 10px;
+}
+
+/* ═══ Menus / Popovers ═══ */
+popover,
+popover.background {
+    background: @popover_bg_color;
+    border: 1px solid @borders;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+modelbutton:hover {
+    background: rgba(46, 196, 182, 0.1);
+    color: #2ec4b6;
+}
+
+/* ═══ Sidebar ═══ */
+.sidebar {
+    background: @sidebar_bg_color;
+    border-right: 1px solid @borders;
+}
+
+.sidebar row:selected {
+    background: rgba(46, 196, 182, 0.15);
+    color: #2ec4b6;
+}
+
+/* ═══ Notebook / Tabs ═══ */
+notebook > header > tabs > tab {
+    padding: 6px 16px;
+    border: none;
+    color: #7a849b;
+    transition: all 0.15s;
+}
+
+notebook > header > tabs > tab:checked {
+    color: #2ec4b6;
+    border-bottom: 2px solid #2ec4b6;
+}
+
+notebook > header > tabs > tab:hover {
+    color: #c9d1e0;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* ═══ Check / Radio ═══ */
+check,
+radio {
+    border: 2px solid #2a3350;
+    background: @view_bg_color;
+}
+
+check:checked,
+radio:checked {
+    background: #2ec4b6;
+    border-color: #2ec4b6;
+    color: #0d1117;
+}
+
+/* ═══ Selection ═══ */
+selection {
+    background: rgba(46, 196, 182, 0.3);
+    color: #f0ead6;
+}
+
+/* ═══ Links ═══ */
+*:link {
+    color: #2ec4b6;
+}
+
+*:link:hover {
+    color: #45d4c6;
+}
+
+*:visited {
+    color: #c678dd;
+}

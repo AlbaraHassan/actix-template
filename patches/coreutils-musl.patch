@@ -1,0 +1,45 @@
+--- a/lib/strtod.c
++++ b/lib/strtod.c
+@@ -1,3 +1,14 @@
++/* Muslinx: musl libc compatibility patch for coreutils
++ * musl does not implement strtod_l() or locale_t from xlocale.h
++ * This patch provides fallback implementations using standard strtod()
++ */
++
++#if defined(__linux__) && !defined(__GLIBC__)
++/* musl libc detected — provide stubs for missing locale functions */
++#define strtod_l(nptr, endptr, loc) strtod(nptr, endptr)
++#define strtof_l(nptr, endptr, loc) strtof(nptr, endptr)
++#define strtold_l(nptr, endptr, loc) strtold(nptr, endptr)
++#endif
++
+ /* Copyright (C) 1991-2024 Free Software Foundation, Inc.
+--- a/lib/locale.h
++++ b/lib/locale.h
+@@ -0,0 +1,15 @@
++/* Muslinx: musl compatibility shim for locale_t
++ * musl provides locale_t in <locale.h> but not xlocale.h
++ */
++#include_next <locale.h>
++
++#if defined(__linux__) && !defined(__GLIBC__)
++#ifndef _MUSLINX_LOCALE_SHIM
++#define _MUSLINX_LOCALE_SHIM
++/* musl has locale_t in locale.h, but some GNU code expects xlocale.h */
++/* These stubs prevent compilation errors with gnulib */
++#define uselocale(x) ((locale_t)0)
++#define freelocale(x) ((void)0)
++#define newlocale(a, b, c) ((locale_t)0)
++#endif
++#endif
+--- a/src/ls.c
++++ b/src/ls.c
+@@ -100,7 +100,9 @@
+ #include <selinux/selinux.h>
+ #endif
+ 
++#if defined(__GLIBC__)
+ #include <langinfo.h>
++#endif
+ 
+ /* For the use of nl_langinfo with CODESET */

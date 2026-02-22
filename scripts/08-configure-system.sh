@@ -229,6 +229,44 @@ TTYEOF
 done
 
 # ──────────────────────────────────────────────
+# First-setup wizard (runs once on first boot)
+# ──────────────────────────────────────────────
+echo "[*] Installing first-setup wizard..."
+SCRIPTS_DIR="$MUSLINX_ROOT/scripts"
+
+# Install the first-setup script
+mkdir -p "$SYSROOT/usr/lib/muslinx"
+cp "$SCRIPTS_DIR/first-setup.sh" "$SYSROOT/usr/lib/muslinx/first-setup.sh"
+chmod +x "$SYSROOT/usr/lib/muslinx/first-setup.sh"
+
+# Create the setup-done marker directory
+mkdir -p "$SYSROOT/var/lib/muslinx"
+
+# Create s6 oneshot service for first-setup
+create_oneshot "first-setup" \
+    "/usr/lib/muslinx/first-setup.sh"
+
+# Add first-setup dependency to tty1 (runs before login prompt)
+touch "$SV_DIR/tty1/dependencies.d/first-setup"
+
+# Hook into .profile to trigger first-setup before Sway starts
+cat > "$SYSROOT/home/muslinx/.profile" << 'EOF'
+# Muslinx First Setup — runs once on first login
+if [ ! -f /var/lib/muslinx/.setup-done ]; then
+    /usr/lib/muslinx/first-setup.sh
+fi
+
+# Auto-start Sway on tty1
+if [ "$(tty)" = "/dev/tty1" ] && [ -z "$WAYLAND_DISPLAY" ]; then
+    export XDG_SESSION_TYPE=wayland
+    export XDG_CURRENT_DESKTOP=sway
+    export MOZ_ENABLE_WAYLAND=1
+    export QT_QPA_PLATFORM=wayland
+    exec sway
+fi
+EOF
+
+# ──────────────────────────────────────────────
 # /etc/os-release
 # ──────────────────────────────────────────────
 echo "[*] Creating os-release..."

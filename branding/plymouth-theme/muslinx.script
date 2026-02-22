@@ -1,0 +1,38 @@
+# Muslinx Plymouth Boot Splash Script
+# Animated 8-pointed star with progress bar
+
+# Background
+Window.SetBackgroundTopColor(0.051, 0.067, 0.090);    # #0d1117
+Window.SetBackgroundBottomColor(0.051, 0.067, 0.090);
+
+# Logo
+logo.image = Image("logo.png");
+logo.sprite = Sprite(logo.image);
+logo.sprite.SetX(Window.GetWidth() / 2 - logo.image.GetWidth() / 2);
+logo.sprite.SetY(Window.GetHeight() / 2 - logo.image.GetHeight() / 2 - 40);
+logo.sprite.SetOpacity(0.9);
+
+# Progress bar
+progress_box.image = Image("progress-bg.png");
+progress_box.sprite = Sprite(progress_box.image);
+progress_box.x = Window.GetWidth() / 2 - progress_box.image.GetWidth() / 2;
+progress_box.y = Window.GetHeight() / 2 + 60;
+progress_box.sprite.SetPosition(progress_box.x, progress_box.y, 0);
+
+progress_bar.original_image = Image("progress-bar.png");
+progress_bar.sprite = Sprite();
+progress_bar.x = progress_box.x + 2;
+progress_bar.y = progress_box.y + 2;
+
+fun progress_callback(duration, progress) {
+    if (progress_bar.image.GetWidth() != Math.Int(progress_bar.original_image.GetWidth() * progress)) {
+        progress_bar.image = progress_bar.original_image.Scale(
+            Math.Int(progress_bar.original_image.GetWidth() * progress),
+            progress_bar.original_image.GetHeight()
+        );
+        progress_bar.sprite.SetImage(progress_bar.image);
+        progress_bar.sprite.SetPosition(progress_bar.x, progress_bar.y, 1);
+    }
+}
+
+Plymouth.SetBootProgressFunction(progress_callback);

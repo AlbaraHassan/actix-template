@@ -1,0 +1,79 @@
+# Muslinx Default Zsh Configuration
+
+# ═══ HISTORY ═══
+HISTFILE=~/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
+setopt appendhistory
+setopt sharehistory
+setopt hist_ignore_dups
+setopt hist_ignore_space
+
+# ═══ OPTIONS ═══
+setopt autocd
+setopt extendedglob
+setopt nomatch
+setopt notify
+setopt interactive_comments
+
+# ═══ COMPLETION ═══
+autoload -Uz compinit
+compinit
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+
+# ═══ KEY BINDINGS ═══
+bindkey -e  # Emacs mode
+bindkey '^[[A' history-search-backward
+bindkey '^[[B' history-search-forward
+bindkey '^[[H' beginning-of-line
+bindkey '^[[F' end-of-line
+bindkey '^[[3~' delete-char
+
+# ═══ PROMPT (Muslinx themed) ═══
+autoload -Uz vcs_info
+precmd() { vcs_info }
+zstyle ':vcs_info:git:*' formats ' %F{yellow}(%b)%f'
+
+setopt prompt_subst
+
+# Turquoise user, Gold path, Rose prompt symbol
+PROMPT='%F{cyan}%n%f@%F{cyan}muslinx%f %F{yellow}%~%f${vcs_info_msg_0_} %F{red}❯%f '
+
+# ═══ ALIASES ═══
+alias ls='ls --color=auto'
+alias ll='ls -alFh'
+alias la='ls -A'
+alias l='ls -CF'
+alias grep='grep --color=auto'
+alias df='df -h'
+alias du='du -h'
+alias free='free -h'
+alias ..='cd ..'
+alias ...='cd ../..'
+
+# mpkg aliases
+alias mi='mpkg install'
+alias mr='mpkg remove'
+alias ms='mpkg search'
+alias mu='mpkg update'
+
+# ═══ ENVIRONMENT ═══
+export EDITOR=nano
+export VISUAL=nano
+export PAGER=less
+export LESS='-R --mouse'
+
+# Wayland
+export XDG_SESSION_TYPE=wayland
+export MOZ_ENABLE_WAYLAND=1
+export QT_QPA_PLATFORM=wayland
+
+# ═══ GREETING ═══
+if [[ -o interactive ]]; then
+    echo ""
+    echo "  ✦  Welcome to \e[36mMuslinx Linux\e[0m"
+    echo "     musl · linux · craft"
+    echo ""
+fi

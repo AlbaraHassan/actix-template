@@ -1,0 +1,23 @@
+--- a/glib/gbacktrace.c
++++ b/glib/gbacktrace.c
+@@ -1,3 +1,12 @@
++/* Muslinx: musl libc compatibility patch for glib
++ * musl does not provide execinfo.h (backtrace functions)
++ * Use libunwind as alternative or disable backtrace entirely
++ */
++
++#if defined(__linux__) && !defined(__GLIBC__)
++#define NO_BACKTRACE 1
++#endif
++
+ /* GLIB - Library of useful routines for C programming
+--- a/glib/gstrfuncs.c
++++ b/glib/gstrfuncs.c
+@@ -50,6 +50,12 @@
++#if defined(__linux__) && !defined(__GLIBC__)
++/* musl compat: provide strtod_l fallback */
++#include <stdlib.h>
++#define strtod_l(nptr, endptr, loc) strtod(nptr, endptr)
++#define strtoll_l(nptr, endptr, base, loc) strtoll(nptr, endptr, base)
++#define strtoull_l(nptr, endptr, base, loc) strtoull(nptr, endptr, base)
++#endif

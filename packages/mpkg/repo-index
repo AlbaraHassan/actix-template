@@ -1,0 +1,39 @@
+# Muslinx Package Repository Index
+# Format: name|version|description
+bash|5.2.37|GNU Bourne-Again Shell
+busybox|1.36.1|Swiss army knife of embedded Linux
+coreutils|9.5|GNU core utilities
+curl|8.11.1|Command-line HTTP client
+dbus|1.14.10|Message bus system
+dhcpcd|10.1.0|DHCP client daemon
+diffutils|3.10|GNU diff utilities
+e2fsprogs|1.47.1|ext4 filesystem utilities
+eudev|3.2.14|Device manager (udev fork)
+findutils|4.10.0|GNU find, xargs
+foot|1.19.0|Fast Wayland terminal emulator
+gawk|5.3.1|GNU AWK
+grep|3.11|GNU grep pattern matcher
+grim|1.4.1|Screenshot tool for Wayland
+iproute2|6.11.0|Network configuration tools
+kmod|33|Kernel module tools
+libressl|4.0.0|TLS library (OpenSSL fork)
+mako|1.9.0|Wayland notification daemon
+mesa|24.3.0|OpenGL/Vulkan graphics library
+ncurses|6.5|Terminal UI library
+openssh|9.9p1|SSH client and server
+patch|2.7.6|GNU patch
+pipewire|1.2.7|Multimedia framework
+readline|8.2|Line editing library
+s6|2.13.1.0|Process supervision suite
+sed|4.9|GNU stream editor
+shadow|4.16.0|User account management
+slurp|1.5.0|Screen region selector for Wayland
+sway|1.10|Wayland tiling compositor
+swaylock|1.8.0|Screen locker for Sway
+tar|1.35|GNU tar archiver
+util-linux|2.40.2|System utilities
+waybar|0.11.0|Wayland status bar
+wl-clipboard|2.2.1|Wayland clipboard utilities
+wofi|0.7|Wayland application launcher
+zsh|5.9|Z shell
+zstd|1.5.6|Zstandard compression

@@ -1,0 +1,26 @@
+--- a/src/util/u_thread.h
++++ b/src/util/u_thread.h
+@@ -1,3 +1,12 @@
++/* Muslinx: musl libc compatibility for mesa
++ * musl doesn't provide pthread_setaffinity_np or CPU_ZERO/CPU_SET
++ * in the same way as glibc
++ */
++
++#if defined(__linux__) && !defined(__GLIBC__)
++/* musl has these in sched.h, ensure it's included */
++#include <sched.h>
++#endif
++
+ /**************************************************************************
+--- a/src/util/os_misc.c
++++ b/src/util/os_misc.c
+@@ -40,7 +40,11 @@
+ #  include <unistd.h>
+ #  include <sys/stat.h>
+ #  include <sys/sysinfo.h>
++#if defined(__GLIBC__)
+ #  include <execinfo.h>
++#else
++/* musl: no execinfo.h — backtrace disabled */
++#endif
+ #endif
